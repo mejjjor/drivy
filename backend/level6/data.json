@@ -9,6 +9,6 @@
   ],
   "rental_modifications": [
     { "id": 1, "rental_id": 1, "end_date": "2015-12-10", "distance": 150 },
-    { "id": 2, "rental_id": 3, "start_date": "2015-07-4" }
+    { "id": 2, "rental_id": 4, "start_date": "2015-07-4" }
   ]
 }

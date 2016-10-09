@@ -14,8 +14,7 @@ ACTORS = ['Driver','Owner','Insurance','Assistance','Drivy']
 
 #init actors
 for actor in ACTORS
-	actor = Object.const_get(actor).new
-	actors.push(actor)
+	actors.push(Object.const_get(actor).new)
 end
 
 #init cars
@@ -24,17 +23,35 @@ for car in data['cars']
 end
 
 #init rentals
+data['rentals'].sort! {|x,y| x['car_id'] <=> y['car_id']}
+cars.sort! {|x,y| x['id'] <=> y['id']}
+carIndex = 0
+car = cars[carIndex]
 for rental in data['rentals']
-	car = cars.select{|car| car.id == rental['car_id']}[0]
-	if car == nil
-		raise "Inconsistent data, no car with id: #{rental['car_id']}"
-	end 
+	while car.id != rental['car_id']
+		carIndex += 1
+		if carIndex == cars.length
+			raise "Inconsistent data, no car with id: #{rental['car_id']} from rental id=#{rental['id']}"
+		end
+		car = cars[carIndex]
+	end
+
 	rentals.push(Rental.new(rental,car))
 end
 
 #build output
+data['rental_modifications'].sort! {|x,y| x['rental_id'] <=> y['rental_id']}
+rentalIndex = 0
+rental = rentals[rentalIndex]
 for rentalModif in data['rental_modifications']
-	rental = rentals.select{|rental| rental.id == rentalModif['rental_id']}[0]
+	while rental.id != rentalModif['rental_id']
+		rentalIndex += 1
+		if rentalIndex == rentals.length
+			raise "Inconsistent data, no rental with id: #{rentalModif['rental_id']} from rental_modification id=#{rentalModif['id']}"
+		end
+		rental = rentals[rentalIndex]
+	end
+
 	rental.computeModif(rentalModif)
 
 	data = {}
@@ -44,6 +61,7 @@ for rentalModif in data['rental_modifications']
 	for actor in actors
 		data['action'].push(actor.getDiff(rental, rental.previousRental))
 	end
+
 	output.push(data)
 end
 
