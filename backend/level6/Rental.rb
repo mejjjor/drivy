@@ -12,6 +12,8 @@ class Rental
 	attr_reader :commission
 	attr_reader :options
 
+	attr_reader :previousRental
+
 	DEDUCTIBLE_REDUCTION_CHARGE = 400
 
 	REDUCTION_AFTER_1_DAY = 0.9
@@ -23,6 +25,14 @@ class Rental
 
 	PERCENTAGE_COMMISSION = 0.3
 
+	def compute
+		@rentalDays = calculateRentalDays
+		@daysPrice = calculateDaysPrice
+		@price = calculatePrice
+		@commission = calculateCommission
+		@options = calculateOptions
+	end
+
 	def initialize(rental, car)
 		@id = rental['id']
 		@car = car
@@ -30,12 +40,7 @@ class Rental
 		@end_date = rental['end_date']
 		@distance = rental['distance']
 		@deductible_reduction = rental['deductible_reduction']
-		
-		@rentalDays = calculateRentalDays
-		@daysPrice = calculateDaysPrice
-		@price = calculatePrice
-		@commission = calculateCommission
-		@options = calculateOptions
+		compute
 	end
 
 	def calculateRentalDays
@@ -83,5 +88,19 @@ class Rental
 
 	def getPercentageOwner
 		return 1 - PERCENTAGE_COMMISSION
+	end
+
+	def computeModif(rentalModif)
+		@previousRental = self.clone
+		if rentalModif['end_date'] != nil
+			@end_date = rentalModif['end_date']
+		end
+		if rentalModif['start_date'] != nil
+			@start_date = rentalModif['start_date']
+		end
+		if rentalModif['distance'] != nil
+			@distance = rentalModif['distance']
+		end
+		compute
 	end
 end

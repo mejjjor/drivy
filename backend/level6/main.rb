@@ -34,21 +34,20 @@ end
 
 #build output
 for rentalModif in data['rental_modifications']
-	rental = rentals.select{|rental| rental.id == rentalModif['id']}[0]
-	rental.applyModif(rentalModif)
+	rental = rentals.select{|rental| rental.id == rentalModif['rental_id']}[0]
+	rental.computeModif(rentalModif)
 
 	data = {}
 	data['id'] = rentalModif['id']
-	data['rental_id'] = rental['id']
+	data['rental_id'] = rentalModif['rental_id']
 	data['action'] = []
 	for actor in actors
-		initialAmount = actor.getAmount(rental)
-		data['action'].push({"who"=>actor.name, "type"=>actor.type, "amount"=>actor.getAmount(rental)})
+		data['action'].push(actor.getDiff(rental, rental.previousRental))
 	end
 	output.push(data)
 end
 
-File.open("output2.json",'w') do |f|
+File.open("output.json",'w') do |f|
 	f.write({"rental_modifications"=>output}.to_json)
 	f.close
 end
